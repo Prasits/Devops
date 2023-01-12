@@ -1,0 +1,58 @@
+Jenkins DC Setup -
+URL - http://10.0.3.113:8080/
+User - XXX
+Password - XXXXXXX
+Jenkins_Home - /var/lib/jenkins
+
+Step 1
+DC - Convert Jenkins Home to tar.gz
+Cd /var/lib/
+tar -czvf jenkins.tar.gz jenkins
+
+Step 2
+Using Filezila move this tar.gz file in local system
+host : sftp://10.0.3.113 
+User : XXX
+Password : XXXXX
+Port : 22
+
+Step 3
+Setup DR server
+Url : 10.0.3.21
+ssh username@10.0.3.21
+sudo su 
+Password
+
+# Allot / mount unused space
+https://packetpushers.net/ubuntu-extend-your-default-lvm-space/#:~:text=To%20use%20up%20that%20free,to%20make%20sure%20it%20changed.
+df -h
+lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
+df -h
+
+# Install Specific version of Jenkins in Ubuntu
+https://directdevops.blog/2019/01/04/installing-specific-lts-version-of-jenkins-on-ubuntu/
+
+Initial configuration
+Username - XXXX
+Password - XXXXXX
+Name - INT BFS
+# Move Jenkins Home to DR 
+Upload jenkins.tar.gz in /home/bfsadmin  through FTP then move to var/lib path
+Stop jenkins - sudo service jenkins stop
+cd /home/bfsadmin
+mv jenkins.tar.gz /var/lib
+Cd /var/lib
+Mv jenkins jenkins_original
+tar -xzvf jenkins.tar.gz
+
+# upgrade Jenkins version
+https://www.javacodemonk.com/install-and-upgrade-jenkins-on-ubuntu-18-04-lts-6862ba8b
+
+# Upgrade openjdk 8 to 11
+https://sysadminxpert.com/how-to-upgrade-java-8-to-java-11-on-ubuntu-20/
+NOTE  :
+Backed up the var/lib/jenkins/config.xml as it will be blanked out.
+In $JENKINS_HOME/config.xml commented out/removed all the authorizationStrategy block and changed <useSecurity>true</useSecurity> to false.
+Started jenkins (it started back normally but without authentication.
+Changed the config.xml to previous original version (included all security previously running) and worked back normally with the original role strategy configuration in place.
